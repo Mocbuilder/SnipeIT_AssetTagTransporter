@@ -13,12 +13,12 @@ namespace SnipeIT_AssetTagTransporter
         static string targetFile;
         static List<Asset> assetList = new List<Asset>();
         static List<string> rawOutput;
-        static int[] columnIndexes = { 2, 3 }; // Indexes for Asset Name and Asset Tag
-        static int formatPermIndex = 0;
+        static int[] columnIndexes = { 0, 2 }; // Indexes for Asset Name and Mac Adresse in source CSV
+        static int targetMacAdresseColumnIndex = 5; // Index for Mac Adresse in target CSV
 
         static void Main(string[] args)
         {
-            Console.WriteLine("File with Asset Tags:");
+            Console.WriteLine("File with Asset Mac Addresses:");
             sourceFile = Console.ReadLine();
 
             Console.WriteLine("Target File (Must already have empty column with correct title):");
@@ -28,7 +28,7 @@ namespace SnipeIT_AssetTagTransporter
             assetList = FormatOutput(rawOutput);
 
             List<string[]> csvData = LoadCSV(targetFile);
-            UpdateCSVWithAssetTags(assetList, csvData);
+            UpdateCSVWithMacAdresse(assetList, csvData);
 
             // Print the output for testing
             foreach (var item in rawOutput)
@@ -60,10 +60,10 @@ namespace SnipeIT_AssetTagTransporter
                 {
                     string[] fields = parser.ReadFields();
 
-                    if (fields != null && fields.Length >= 4) // Ensure there are enough columns
+                    if (fields != null && fields.Length >= 3) // Ensure there are enough columns
                     {
-                        output.Add(fields[2]); // Asset Name
-                        output.Add(fields[3]); // Asset Tag
+                        output.Add(fields[0]); // Asset Name
+                        output.Add(fields[2]); // Mac Adresse
                     }
                 }
             }
@@ -87,7 +87,7 @@ namespace SnipeIT_AssetTagTransporter
             return output;
         }
 
-        public static void UpdateCSVWithAssetTags(List<Asset> assetList, List<string[]> csvData)
+        public static void UpdateCSVWithMacAdresse(List<Asset> assetList, List<string[]> csvData)
         {
             foreach (Asset asset in assetList)
             {
@@ -96,16 +96,16 @@ namespace SnipeIT_AssetTagTransporter
 
                 if (rowToUpdate != null)
                 {
-                    // Update the AssetTag in the specified column (e.g., column index 3)
-                    if (rowToUpdate.Length > 3) // Assuming AssetTag should go into column index 3
+                    // Update the Mac Adresse in the specified column (index 5)
+                    if (rowToUpdate.Length > targetMacAdresseColumnIndex) // Ensure there are enough columns
                     {
-                        rowToUpdate[3] = asset.AssetTag; // Update the asset tag
-                        Console.WriteLine($"Updated AssetTag for '{asset.AssetName}' to '{asset.AssetTag}'.");
+                        rowToUpdate[targetMacAdresseColumnIndex] = asset.AssetTag; // Update the Mac Adresse
+                        Console.WriteLine($"Updated Mac Adresse for '{asset.AssetName}' to '{asset.AssetTag}'.");
                     }
                     else
                     {
                         // Handle if the row doesn't have enough columns
-                        Console.WriteLine($"Error: Row doesn't have enough columns to update AssetTag for AssetName: {asset.AssetName}");
+                        Console.WriteLine($"Error: Row doesn't have enough columns to update Mac Adresse for AssetName: {asset.AssetName}");
                     }
                 }
                 else
